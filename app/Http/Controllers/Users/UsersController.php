@@ -22,6 +22,7 @@ use Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 
 /**
@@ -99,7 +100,7 @@ class UsersController extends Controller
         $user->email =  e($request->input('email'));
         $user->username = e($request->input('username'));
         if ($request->filled('password')) {
-            $user->password = bcrypt($request->input('password'));
+            $user->password = Hash::make($request->input('password'));
         }
         $user->first_name = $request->input('first_name');
         $user->last_name = $request->input('last_name');
@@ -146,8 +147,11 @@ class UsersController extends Controller
                 $data['first_name'] = e($request->input('first_name'));
                 $data['last_name'] = e($request->input('last_name'));
                 $data['password'] = e($request->input('password'));
-
-                $user->notify(new WelcomeNotification($data));
+                try {
+                    $user->notify(new WelcomeNotification($data));
+                } catch (\Exception $e) {
+                    // TODO provide logging
+                }
             }
             return redirect::route('users.index')->with('success', trans('admin/users/message.success.create'));
         }
@@ -279,7 +283,7 @@ class UsersController extends Controller
 
         // Do we want to update the user password?
         if ($request->filled('password')) {
-            $user->password = bcrypt($request->input('password'));
+            $user->password = Hash::make($request->input('password'));
         }
 
         $permissions_array = $request->input('permission');
