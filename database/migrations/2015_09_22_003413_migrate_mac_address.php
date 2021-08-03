@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class MigrateMacAddress extends Migration {
 
@@ -37,7 +38,13 @@ class MigrateMacAddress extends Migration {
 		// DB::statement("ALTER TABLE assets CHANGE mac_address _snipeit_mac_address varchar(255)");
 
 		$ans=Schema::table("models",function (Blueprint $table) {
-			$table->renameColumn('show_mac_address','deprecated_mac_address');
+			if ($this->isSqlServer()) {
+				DB::statement("sp_RENAME 'models.show_mac_address', 'models.deprecated_mac_address', 'COLUMN'");
+			} else {
+				$table->renameColumn('show_mac_address','deprecated_mac_address');
+			}
+			
+			//$table->renameColumn('show_mac_address','deprecated_mac_address');
 		});
 	}
 
@@ -58,4 +65,19 @@ class MigrateMacAddress extends Migration {
 		DB::statement("ALTER TABLE assets CHANGE _snipeit_mac_address mac_address varchar(255)");
 	}
 
+	final protected function getEngine()
+	{
+		$dbEngine = strtolower(config('database.default'));
+
+		if (null === $dbEngine || strlen($dbEngine) === 0) {
+			throw new \UnexpectedValueException("DB engine must not be null or empty.");
+		}
+
+		return $dbEngine;
+	}
+
+	final protected function isSqlServer()
+	{
+		return $this->getEngine() === 'sqlsrv';
+	}
 }

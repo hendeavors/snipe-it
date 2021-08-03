@@ -37,7 +37,6 @@ class AssetObserver
             $logAction = new Actionlog();
             $logAction->item_type = Asset::class;
             $logAction->item_id = $asset->id;
-            $logAction->created_at =  date("Y-m-d H:i:s");
             $logAction->user_id = Auth::id();
             $logAction->log_meta = json_encode($changed);
             $logAction->logaction('update');
@@ -65,7 +64,6 @@ class AssetObserver
         $logAction = new Actionlog();
         $logAction->item_type = Asset::class;
         $logAction->item_id = $asset->id;
-        $logAction->created_at =  date("Y-m-d H:i:s");
         $logAction->user_id = Auth::id();
         $logAction->logaction('create');
 
@@ -82,7 +80,6 @@ class AssetObserver
         $logAction = new Actionlog();
         $logAction->item_type = Asset::class;
         $logAction->item_id = $asset->id;
-        $logAction->created_at =  date("Y-m-d H:i:s");
         $logAction->user_id = Auth::id();
         $logAction->logaction('delete');
     }

@@ -831,7 +831,7 @@ class Helper
         }
 
         $settings = Setting::getSettings();
-        $tmp_date = new \Carbon($date);
+        $tmp_date = \Carbon\Carbon::parse($date);
 
         if ($type == 'datetime') {
             $dt['datetime'] = $tmp_date->format('Y-m-d H:i:s');

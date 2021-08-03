@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddCheckoutTimeAndExpectedCheckoutDateToAssets extends Migration {
 
@@ -19,7 +20,12 @@ class AddCheckoutTimeAndExpectedCheckoutDateToAssets extends Migration {
 			$table->date('expected_checkin')->nullable();
 		});
 		DB::statement("UPDATE ".DB::getTablePrefix()."assets SET last_checkout=(SELECT MAX(created_at) FROM ".DB::getTablePrefix()."asset_logs WHERE ".DB::getTablePrefix()."asset_logs.id=".DB::getTablePrefix()."assets.id AND action_type='checkout') WHERE assigned_to IS NOT NULL");
-		DB::statement("UPDATE ".DB::getTablePrefix()."assets SET expected_checkin=(SELECT expected_checkin FROM ".DB::getTablePrefix()."asset_logs WHERE ".DB::getTablePrefix()."asset_logs.id=".DB::getTablePrefix()."assets.id AND action_type='checkout' ORDER BY id DESC limit 1) WHERE assigned_to IS NOT NULL");
+		if ($this->isSqlServer()) {
+            DB::statement("UPDATE ".DB::getTablePrefix()."assets SET expected_checkin=(SELECT top 1 expected_checkin FROM ".DB::getTablePrefix()."asset_logs WHERE ".DB::getTablePrefix()."asset_logs.id=".DB::getTablePrefix()."assets.id AND action_type='checkout' ORDER BY id DESC) WHERE assigned_to IS NOT NULL");
+		} else {
+            DB::statement("UPDATE ".DB::getTablePrefix()."assets SET expected_checkin=(SELECT expected_checkin FROM ".DB::getTablePrefix()."asset_logs WHERE ".DB::getTablePrefix()."asset_logs.id=".DB::getTablePrefix()."assets.id AND action_type='checkout' ORDER BY id DESC limit 1) WHERE assigned_to IS NOT NULL");
+		}
+		
 	}
 
 	/**
@@ -35,6 +41,22 @@ class AddCheckoutTimeAndExpectedCheckoutDateToAssets extends Migration {
 			$table->dropColumn('last_checkout');
 			$table->dropColumn('expected_checkin');
 		});
+	}
+
+	final protected function getEngine()
+	{
+		$dbEngine = strtolower(config('database.default'));
+
+		if (null === $dbEngine || strlen($dbEngine) === 0) {
+			throw new \UnexpectedValueException("DB engine must not be null or empty.");
+		}
+
+		return $dbEngine;
+	}
+
+	final protected function isSqlServer()
+	{
+		return $this->getEngine() === 'sqlsrv';
 	}
 
 }

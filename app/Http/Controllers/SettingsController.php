@@ -22,6 +22,7 @@ use Input;
 use Redirect;
 use Response;
 use App\Helpers\StorageHelper;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * This controller handles all actions related to Settings for
@@ -161,7 +162,7 @@ class SettingsController extends Controller
         $permissions       = ['superuser' => 1];
         $user->permissions = json_encode($permissions);
         $user->username    = $data['username']    = $request->input('username');
-        $user->password    = bcrypt($request->input('password'));
+        $user->password    = Hash::make($request->input('password'));
         $data['password']  = $request->input('password');
 
         $settings                                  = new Setting();
@@ -194,7 +195,12 @@ class SettingsController extends Controller
                 $data['first_name'] = $user->first_name;
                 $data['last_name']  = $user->last_name;
                 $data['password']   = $request->input('password');
-                $user->notify(new FirstAdminNotification($data));
+                try {
+                    $user->notify(new FirstAdminNotification($data));
+                } catch (\Exception $e) {
+
+                }
+                
             }
 
             return redirect()->route('setup.done');

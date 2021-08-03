@@ -3,10 +3,27 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Foundation\Testing\TestCase;
+use Illuminate\Contracts\Console\Kernel;
 
-class BaseTest extends \Codeception\TestCase\Test
+abstract class BaseTest extends TestCase
 {
     use DatabaseTransactions;
+
+    /**
+     * Creates the application.
+     *
+     * @return \Illuminate\Foundation\Application
+     */
+    public function createApplication()
+    {
+        $app = require __DIR__.'/../../bootstrap/app.php';
+
+        $app->make(Kernel::class)->bootstrap();
+
+        return $app;
+    }
+
     protected function _before()
     {
         Artisan::call('migrate');

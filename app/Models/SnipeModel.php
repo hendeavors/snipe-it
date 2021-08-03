@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Helpers\Helper;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Traits\SqlServerDateTimeConversion;
 
 class SnipeModel extends Model
 {
+    use SqlServerDateTimeConversion;
     // Setters that are appropriate across multiple models.
     public function setPurchaseDateAttribute($value)
     {

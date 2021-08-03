@@ -24,7 +24,7 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
 
-        <env name="DB_CONNECTION" value="sqlite_testing" />
+        <env name="DB_CONNECTION" value="sqlsrv" />
 
         <server name="SERVER_NAME" value="http://testing.dev"/>
     </php>
