@@ -18,6 +18,7 @@ use Auth;
 use Illuminate\Http\Request;
 use App\Http\Requests\ImageUploadRequest;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -236,7 +237,7 @@ class UsersController extends Controller
         }
 
         $tmp_pass = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 20);
-        $user->password = bcrypt($request->get('password', $tmp_pass));
+        $user->password = Hash::make($request->get('password', $tmp_pass));
 
         app('App\Http\Requests\ImageUploadRequest')->handleImages($user, 600, 'image', 'avatars', 'avatar');
         
@@ -298,7 +299,7 @@ class UsersController extends Controller
         }
 
         if ($request->filled('password')) {
-            $user->password = bcrypt($request->input('password'));
+            $user->password = Hash::make($request->input('password'));
         }
 
         // We need to use has()  instead of filled()
