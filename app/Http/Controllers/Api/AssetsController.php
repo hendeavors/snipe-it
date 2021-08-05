@@ -253,7 +253,7 @@ class AssetsController extends Controller
 
         // This handles all of the pivot sorting (versus the assets.* fields
         // in the allowed_columns array)
-        $column_sort = in_array($sort_override, $allowed_columns) ? $sort_override : 'assets.created_at';
+        $column_sort = in_array($sort_override, $allowed_columns) ? $sort_override : 'created_at';
 
 
         switch ($sort_override) {
@@ -287,14 +287,14 @@ class AssetsController extends Controller
                 $assets->OrderAssigned($order);
                 break;
             default:
-                $assets->orderBy($column_sort, $order);
+                // naive solution for fully qualified column sorting
+                $assets->orderBy('assets.' . $column_sort, $order);
                 break;
         }
 
 
         $total = $assets->count();
         $assets = $assets->skip($offset)->take($limit)->get();
-        // dd($assets);
         return (new AssetsTransformer)->transformAssets($assets, $total);
     }
 

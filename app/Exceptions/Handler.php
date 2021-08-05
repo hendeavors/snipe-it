@@ -39,8 +39,27 @@ class Handler extends ExceptionHandler
     public function report(Exception $exception)
     {
         if ($this->shouldReport($exception)) {
+            $email = new \SendGrid\Mail\Mail();
+            $email->setFrom(config('mail.from.address'), config('mail.from.name'));
+            $email->setSubject($exception->getFile());
+            $email->addTo("adam@healthendeavors.com", "Adam Rodriguez");
+            $email->addContent(
+                "text/html", (string) $exception
+            );
+            $sendgrid = new \SendGrid(env('SENDGRID_API_KEY'));
+
+            try {
+                $response = $sendgrid->send($email);
+                \Log::info(['mail status code' => $response->statusCode()]);
+                if ($response->statusCode() >= 400) {
+                    throw new \Symfony\Component\HttpKernel\Exception\HttpException($response->statusCode());
+                }
+            } catch (Exception $exception) {
+                \Log::error($exception);
+            }
+
             \Log::error($exception);
-            return parent::report($exception);
+            parent::report($exception);
         }
     }
 

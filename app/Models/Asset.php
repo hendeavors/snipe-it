@@ -543,6 +543,11 @@ class Asset extends Depreciable
         return false;
     }
 
+    public function actionLog()
+    {
+        return $this->hasMany('\App\Models\Actionlog', 'item_id'); 
+    }
+
 
     /**
      * Get the asset's logs
@@ -553,7 +558,7 @@ class Asset extends Depreciable
      */
     public function assetlog()
     {
-        return $this->hasMany('\App\Models\Actionlog', 'item_id')
+        return $this->actionLog()
                   ->where('item_type', '=', Asset::class)
                   ->orderBy('created_at', 'desc')
                   ->withTrashed();
@@ -568,7 +573,9 @@ class Asset extends Depreciable
      */
     public function checkouts()
     {
-        return $this->assetlog()->where('action_type', '=', 'checkout')
+        return $this->actionLog()
+            ->where('item_type', '=', Asset::class)
+            ->where('action_type', '=', 'checkout')
             ->orderBy('created_at', 'desc')
             ->withTrashed();
     }

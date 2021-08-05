@@ -40,7 +40,7 @@ $config = [
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
-            'level' => env('APP_LOG_LEVEL', 'error'),
+            'level' => env('APP_LOG_LEVEL', 'info'),
         ],
 
 
